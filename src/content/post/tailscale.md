@@ -14,11 +14,11 @@ image: https://tailscale.gallerycdn.vsassets.io/extensions/tailscale/vscode-tail
 
 ## About Tailscale
 
-Tailscale utilizes a mesh VPN creating a private, encrypted network, what they call a *tailnet*. Tailscale spans all devices, regardless of the physical location. Tailscale employs Wireguard, a modern VPN protocol, which handles the encrypted transport between devices. In contrast to a traditional VPN where every packet is routed through a central concentrator, Tailscale devices are connected to eachother, forming a peer-to-peer mesh.
+Tailscale utilizes a mesh VPN creating a private, encrypted network, what they call a *tailnet*. Tailscale spans all devices, regardless of the physical location. Tailscale employs WireGuard, a modern VPN protocol, which handles the encrypted transport between devices. In contrast to a traditional VPN where every packet is routed through a central concentrator, Tailscale devices are connected to each other, forming a peer-to-peer mesh.
 
 ![Tailscale Mesh Topology](https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/tailscalep2p.svg)
 
-A coordination server distributes public keys and access policies allowing machines to find eachother and traverse NAT. 
+A coordination server distributes public keys and access policies allowing machines to find each other and traverse NAT. 
 
 **NOTE:** *The encrypted traffic itself flows between devices, and never touches Tailscale's infrastructure.*
 
@@ -28,15 +28,15 @@ As a result, the network behaves like a single LAN with capability to connect se
 
 ## Initial Setup
 
-Within Proxmox Virtual Environment, I created a linux container (LXC) as my inital tailscale node— *tailscaleprd1*. For the LXC specifications, I provisioned the LXC with 4 cores and 8GB RAM, and 8GB of disk space.
+Within Proxmox Virtual Environment, I created a Linux container (LXC) as my initial tailscale node— *tailscaleprd1*. For the LXC specifications, I provisioned the LXC with 4 cores and 8GB RAM, and 8GB of disk space.
 
 ![LXC Specifications](https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/tailscale_resources)
 
 ### TUN Access & Tailscale Interface Creation
 
-By default, the unprivileged LXC doesnt expose the host's `/dev/net/tun` device, which is required for Tailscale to create the virtual interface for the VPN tunnel. By adding the following lines, this will grant permission to the TUN device, and mount the interface allowing Tailscale to reach it.
+By default, the unprivileged LXC doesn't expose the host's `/dev/net/tun` device, which is required for Tailscale to create the virtual interface for the VPN tunnel. The following settings, this will grant permission to the TUN device, and mount the interface allowing Tailscale to reach it.
 
-To do this, through Proxmoxs host node shell, use the following command to edit the .conf of the LXC:
+To do this, through Proxmox's host node shell, use the following command to edit the .conf of the LXC:
 
 ```bash
 root@pve1:~# nano /etc/pve/lxc/[PCT ID].conf
@@ -102,11 +102,11 @@ After authenticating the second device to the tailnet, you now have an encrypted
 
 ## Subnet Router vs. Adding Individual Devices
 
-Initially, I kept repeating the process by adding more devices to the tailscale, however I realized this wasn't my goal— my goal is to have an encrypted VPN tunnel to my entire network, where all devices can commnunicate with eachother regardless of physical location.
+Initially, I kept repeating the process by adding more devices to the tailscale, however I realized this wasn't my goal— my goal is to have an encrypted VPN tunnel to my entire network, where all devices can communicate with each other regardless of physical location.
 
 After researching further into Tailscale capabilities, I came across [Tailscale Subnet Routers](https://tailscale.com/docs/features/subnet-routers), which provided what I was looking for. 
 
-Per Tailscale documenation, Tailscale subnet routers allow you to extend your tailnet to include devices that don't or can't run the Tailscale client, acting as a gateway between your tailnet and physical subnets, enabling secure access to legacy devices, entire networks, or services without installing Tailscale everywhere. 
+Per Tailscale documentation, Tailscale subnet routers allow you to extend your tailnet to include devices that don't or can't run the Tailscale client, acting as a gateway between your tailnet and physical subnets, enabling secure access to legacy devices, entire networks, or services without installing Tailscale everywhere. 
 
 ### Setting up Subnet Router within Tailnet
 
@@ -120,7 +120,7 @@ sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 
 ![tailscale-subnetrouter-troubleshoot](https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/troubleshot-subnetrouter)
 
-After executing the IP forwarding settings to `etc/sysctl.d/99-tailscale.conf` and running `sysctl -p` to apply them returned a command not found error and a warning that IP forwarding is disbaled. This was due to `sysctl` residing in `/usr/sbin`, which wasnt included in the shells `$PATH`. To fix this, I executed the absolute path to apply the settings: 
+After executing the IP forwarding settings to `etc/sysctl.d/99-tailscale.conf` and running `sysctl -p` to apply them returned a command not found error and a warning that IP forwarding is disabled. This was due to `sysctl` residing in `/usr/sbin`, which wasn't included in the shell's `$PATH`. To fix this, I executed the absolute path to apply the settings: 
 ```bash
 /sbin/sysctl -p /etc/sysctl.d/99-tailscale.conf
 ```
@@ -134,7 +134,7 @@ cat /proc/sys/net/ipv6/conf/all/forwarding
 1
 ```
 
-After IP forwarding settings are set, you must advertise your subnet routes via the following command: 
+After IP forwarding settings are set, you must advertise your subnet routes via the following command:
 
 `sudo tailscale set --advertise-routes=192.0.2.0/24,198.51.100.0/24`
 
@@ -146,7 +146,7 @@ Lastly, the IP route must be approved within the Tailscale Admin Center.
 
 ![approve-subnetroute](https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/approve-route)
 
-As the route is now approved, the tailnet is now advertising the subnet `192.168.1.0/24` network to the tailnet and forwards traffic to it. Devices within the tailnet can now reach hosts on that LAN as if they were local, regardless of the location of the physical device *witthout requiring Tailscale running themselves*.
+As the route is now approved, the tailnet is now advertising the subnet `192.168.1.0/24` network to the tailnet and forwards traffic to it. Devices within the tailnet can now reach hosts on that LAN as if they were local, regardless of the location of the physical device *without requiring Tailscale running themselves*.
 
 ### Custom DNS — AdGuard
 
@@ -179,7 +179,7 @@ Additionally, I enabled Direct IP access over a port I specified to allow for co
 
 ### Limiting IP Ranges - Firewall
 
-Even though 2FA is enabled for any incoming connnection, I wanted a implicit deny for any incoming RustDesk connections from outside my 192.x network, and my 100.x tailscale network. To do this, I set up a Windows Firewall Rule via PowerShell using the following command:
+Even though 2FA is enabled for any incoming connection, I wanted an implicit deny for any incoming RustDesk connections from outside my 192.x network, and my 100.x tailscale network. To do this, I set up a Windows Firewall Rule via PowerShell using the following command:
 
 ```powershell
 PS C:\Users\ryana> New-NetFirewallRule `
@@ -203,4 +203,4 @@ And, to ensure it is blocking unknown incoming connections appropriately, I disc
 
 ### Closing Thoughts
 
-Theres alot left to explore within Tailscale, but ultimately I'm really happy with setting up this VPN to access my home network, limit incoming RDP/RustDesk connections. 
+There's a lot left to explore within Tailscale, but ultimately I'm really happy with setting up this VPN to access my home network, limit incoming RDP/RustDesk connections. 
