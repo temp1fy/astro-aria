@@ -19,6 +19,8 @@ Can you piece together the attack chain in real-time and prepare a comprehensive
 - Identify and document critical events such as PowerShell executions, reverse shell connections, and suspicious DNS requests.
 - Create detailed case reports based on your observations to help the team understand the full scope of the breach.
 
+## 
+
 
 
 
