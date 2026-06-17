@@ -201,6 +201,10 @@ And, to ensure it is blocking unknown incoming connections appropriately, I disc
 
 <img src="https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/block%20access%20rustdesk%20working.png" alt="blockaccess" style="max-height: 500px; width: auto; display: block; margin: 0 auto;" />
 
+Accessing my Windows 11 PC via RustDesk:
+
+![rustdesk](https://6fghcxgkmfuhb9vl.public.blob.vercel-storage.com/rustdesk.png)
+
 ### Closing Thoughts
 
 There's a lot left to explore within Tailscale, but ultimately I'm really happy with setting up this VPN to access my home network, limit incoming RDP/RustDesk connections. 
